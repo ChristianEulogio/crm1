@@ -6,7 +6,7 @@ class Customer(models.Model):
     name = models.CharField(max_length=200, null=True)
     phone = models.CharField(max_length=200, null=True)
     email = models.CharField(max_length=200, null=True)
-    date_creatred = models.DateTimeField(auto_now=True, null=True)
+    date_created = models.DateTimeField(auto_now=True, null=True)
 
     #this is for return the name in the admin data bases
     def __str__(self):
