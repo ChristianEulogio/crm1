@@ -4,8 +4,15 @@ from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from django.contrib.auth.models import User
 
-from .models import Order
+from .models import Order, Customer
 
+class CustomerForm(ModelForm):
+    class Meta:
+        #Customer from models
+        model = Customer
+        field = '__all__'
+        #not update the user
+        exclude = ['user']
 
 class OrderForm(ModelForm):
     class Meta:

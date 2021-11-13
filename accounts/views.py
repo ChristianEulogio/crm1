@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 # Create your views here.
 from .models import *
-from .forms import OrderForm, CreateUserForm
+from .forms import OrderForm, CreateUserForm, CustomerForm
 from .filters import OrderFilter
 from .decorators import unauthenticated_user, allowed_users, admin_only
 #, allowed_users
@@ -30,6 +30,10 @@ def registerPage(request):
             #obtenemos group
             group = Group.objects.get(name='customer')
             user.groups.add(group)#le añadimos el grupo a user
+            #se crea un customer para el nuevo user
+            Customer.objects.create(
+                user=user,
+            )
 
             messages.success(request, 'Account was created for ' + username)
             #redirect login/
@@ -86,10 +90,41 @@ def home(request):
     'pending':pending}
     return render(request, 'accounts/dashboard.html', context)
 
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['customer'])#para que el customer pueda aceder
 def userPage(request):
-    context = {}
+    #para sacar las ordernes de customer no el usuario ya que tiene un onetoOne
+    #llamamos al customer del 'user' logiado con request
+    orders = request.user.customer.order_set.all()
+    total_orders = orders.count()
+    delivered = orders.filter(status='Delivered').count()
+    pending = orders.filter(status='Pending').count()
+
+    context = {'orders':orders, 'total_orders':total_orders,'delivered':delivered,
+    'pending':pending}
+    #show me the orders form customer
+    print('ORDERS:', orders)
     return render(request, 'accounts/user.html', context)
 
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['customer'])
+def accountSettings(request):
+    #this is just going to get us that logged in user and the customer associated at
+    #any point in time and let's pass in that form 
+    customer= request.user.customer
+    #instance es para rellenar los campos 
+    form = CustomerForm(instance=customer)
+
+    #para guardar datos 
+    if request.method =='POST':
+        #obtenemos los datos del POST y se los pasamos
+        # a CustomerForm y los gardamos en form tambien se los pasamos al instance 
+        form = CustomerForm(request.POST, request.FILES,instance=customer)
+        if form.is_valid():
+            form.save()
+
+    context = {'form':form}
+    return render(request, 'accounts/account_settings.html', context)
 
 @login_required(login_url='login')
 @allowed_users(allowed_roles=['admin'])
