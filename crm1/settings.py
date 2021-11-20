@@ -37,8 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    'accounts',
+    #para que agarren accountsConfig de apps
+    'accounts.apps.AccountsConfig',
     'django_filters',
 ]
 

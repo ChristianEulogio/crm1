@@ -19,3 +19,4 @@ urlpatterns = [
     path('delete_order/<str:pk>/', views.deleteOrder, name="delete_order")
     
 ]
+
